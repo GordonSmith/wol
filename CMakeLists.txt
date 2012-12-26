@@ -1,0 +1,40 @@
+CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
+
+PROJECT ( wol )
+
+IF (WIN32)
+    SET( Boost_USE_STATIC_LIBS ON )
+    SET( Boost_USE_STATIC_RUNTIME ON )
+
+    FOREACH( flag_var
+            CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+            CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+            )
+        IF(${flag_var} MATCHES "/MD")
+            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+        ENDIF()
+    ENDFOREACH(flag_var)
+ENDIF (WIN32)
+
+FIND_PACKAGE( Boost COMPONENTS program_options system)
+IF( Boost_FOUND )
+ELSE( Boost_FOUND )
+    MESSAGE( "BOOST libraries were not found:  " ${BOOST_ROOT})
+ENDIF( Boost_FOUND )
+
+INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIRS} )
+LINK_DIRECTORIES ( ${Boost_LIBRARY_DIRS} )
+
+# --- wol  ---
+SET ( SRCS
+    wol.cpp
+
+    README.md
+    )
+
+ADD_EXECUTABLE ( wol  ${SRCS})
+IF (NOT WIN32)
+    TARGET_LINK_LIBRARIES ( wol ${Boost_LIBRARIES} )
+ENDIF (NOT WIN32)
